@@ -9,6 +9,9 @@ class Settings:
     slack_verification_token = ''
     slack_oauth_token = ''
 
+    # external hostname for url building
+    hostname = 'https://localhost'
+
     # app settings
     host = '0.0.0.0'
     port = 8080
@@ -25,13 +28,17 @@ class Settings:
         'port': port
     }
 
-    @property
-    def slack_creds(self):
-        return {
-            'client_id': self.slack_client_id,
-            'client_secret': self.slack_client_secret,
-            'token': self.slack_verification_token
-        }
+    read_only_scopes = [
+        'channels:history',
+        'channels:read',
+
+        'users:read',
+        'team:read',
+
+        'pins:read',
+        'reactions:read',
+        'stars:read',
+    ]
 
 
 def try_get_yaml(filename):
