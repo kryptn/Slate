@@ -12,6 +12,8 @@ class Settings:
     # external hostname for url building
     hostname = 'https://localhost'
 
+    dev = False
+
     # app settings
     host = '0.0.0.0'
     port = 8080
