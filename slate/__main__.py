@@ -1,5 +1,4 @@
 import click
-from IPython import embed
 from aiohttp import web
 
 from slate import Settings
@@ -20,6 +19,8 @@ def runserver():
 
 @click.command()
 def shell():
+    from IPython import embed
+
     graph = make_graph_with_creds()
     embed()
 
