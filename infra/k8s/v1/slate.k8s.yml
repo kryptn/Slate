@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: slate
-          image: us.gcr.io/##project##/miris/slate:latest
+          image: us.gcr.io/##project##/miris/slate:##version##
           volumeMounts:
           - name: secrets
             mountPath: "/data"
