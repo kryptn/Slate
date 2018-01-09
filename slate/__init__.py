@@ -18,6 +18,8 @@ class Settings:
     host = '0.0.0.0'
     port = 8080
 
+    amqp_uri = 'amqp://guest:guest@localhost'
+
     # neo4j settings
     neo4j = {
         'host': 'localhost',

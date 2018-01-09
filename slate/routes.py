@@ -1,7 +1,7 @@
 from aiohttp import web
 
 from slate import Settings
-from slate.views import health, ingest, history, channel, oauth_redirect, oauth_verify, install
+from slate.views import health, ingest, history, channel
 
 
 def setup_routes(app: web.Application):
@@ -11,7 +11,3 @@ def setup_routes(app: web.Application):
     if Settings.dev:
         app.router.add_get('/history/', history, name='history')
         app.router.add_get('/channel/{channel_id:[A-Z0-9]+}/', channel, name='channel')
-
-    app.router.add_get('/oauth/redirect/', oauth_redirect, name='oauth-redirect')
-    app.router.add_get('/oauth/verify/', oauth_verify, name='oauth-verify')
-    app.router.add_get('/install/', install, name='install')
