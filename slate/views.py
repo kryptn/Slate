@@ -7,18 +7,6 @@ from aiohttp.web import json_response
 from slate import Settings
 
 
-async def ingest(request: web.Request) -> web.Response:
-    payload = await request.json()
-    if payload.pop('token', None) != Settings.slack_verification_token:
-        return web.Response(status=401, reason='invalid token')
-
-    if payload['type'] == 'url_verification':
-        return json_response({'challenge': payload['challenge']})
-
-    request.app.loop.create_task(request.app.slack.handle(payload))
-    return web.Response(status=200)
-
-
 async def history(request: web.Request) -> web.Response:
     q = 'match (e:IngestEvent) with e order by e.event_time return collect(e) as events'
     result = request.app.graph.run(q)
@@ -50,6 +38,22 @@ async def channel(request: web.Request) -> web.Response:
     data = result.data()
 
     return json_response(sorted(data, key=lambda x: x['message']['event_ts']))
+
+
+async def replay(request: web.Request) -> web.Response:
+    channel = request.match_info['channel_id']
+
+
+async def ingest(request: web.Request) -> web.Response:
+    payload = await request.json()
+    if payload.pop('token', None) != Settings.slack_verification_token:
+        return web.Response(status=401, reason='invalid token')
+
+    if payload['type'] == 'url_verification':
+        return json_response({'challenge': payload['challenge']})
+
+    request.app.loop.create_task(request.app.slack.handle(payload))
+    return web.Response(status=200)
 
 
 async def health(request: web.Request) -> web.Response:

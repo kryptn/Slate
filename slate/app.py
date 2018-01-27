@@ -2,7 +2,7 @@ from aiohttp import web
 
 from slate.graph import init_graph
 from slate.routes import setup_routes
-from slate.slack import init_slack
+from slate.actions import init_slack
 from slate.oauth import init_slack_oauth_flow
 from slate.metrics import setup_prometheus, prometheus_middleware
 
@@ -19,6 +19,7 @@ def make_app() -> web.Application:
             await app.slack.authorize(data)
 
     init_slack_oauth_flow(app, auth_callback)
+
     setup_routes(app)
     setup_prometheus(app, 'slate')
 

@@ -1,70 +1,66 @@
-from py2neo import Graph, Node, Relationship
+from itertools import chain
+
+from py2neo import Graph, Node
 
 from slate import Settings
+from slate.utils import Thunk
 
 
-class AbstractThing:
-    _thing_type = None
-    _thing_default_labels = []
-    _thing_default_properties = {}
+class AbstractNode(Thunk):
+    default_labels = []
+    default_properties = {}
 
     def __init__(self, *labels, **properties):
-        self.labels = self._thing_default_labels[:] + list(labels)
-        self.properties = self._thing_default_properties.copy()
-        self.properties.update(properties)
+        super().__init__(Node, *labels, **properties)
 
     @property
-    def obj(self):
-        if self._thing_type:
-            return self._thing_type(*self.labels, **self.properties)
-        return self._thing_type
+    def n(self):
+        defaults = (i.default_labels for i in type(self).__mro__ if issubclass(i, AbstractNode))
+        self.args = set(chain(*defaults, self.args))
+        return self.value
+
+    @property
+    def name(self):
+        return self.n.__name__
 
     def __repr__(self):
-        return repr(self.obj)
-
-    def __getattribute__(self, item):
-        if hasattr(self.obj, item):
-            getattr(self.obj, item)
-        obj = self.__getattr__(self, item)
-        if obj and obj.is_float and 'ts' in item:
-            return float(obj)
-        return obj
+        return repr(self.n)
 
 
-class _Message(AbstractThing):
-    _thing_type = Node
-    _thing_default_labels = ['Slack']
-
-
-class SlackNode(Node):
-    def __init__(self, *labels, **properties):
-        if 'Slack' not in labels:
-            labels = (*labels, 'Slack')
-        obj = properties.pop('__obj', None)
-        if obj:
-            properties['team_id'] = obj.team_id
-            properties['api_app_id'] = obj.api_app_id
-            properties['event_id'] = obj.event_id
-        super().__init__(*labels, **properties)
-
-
-class SlackRelationship(Relationship):
-    Relationship(Node(), 'a', Node())
+class SlackNode(AbstractNode):
+    default_labels = ['Slack']
 
 
 class Message(SlackNode):
-    def __init__(self, obj):
-        labels = ('Message',)
-        properties = {
-            '__obj': obj,
-            'user': obj.event.user,
-            'text': obj.event.text,
-            'channel': obj.event.channel,
-            'event_ts': float(obj.event.event_ts)
-        }
-        if obj.event.thread_ts:
-            properties['thread_ts'] = float(obj.event.thread_ts)
-        super().__init__(*labels, **properties)
+    default_labels = ['Message']
+
+
+class IngestEvent(SlackNode):
+    default_labels = ['IngestEvent']
+
+
+class User(SlackNode):
+    default_labels = ['User']
+
+
+class Reaction(SlackNode):
+    default_labels = ['Reaction']
+
+
+class Emoji(SlackNode):
+    default_labels = ['Emoji']
+
+
+class Emote(SlackNode):
+    default_labels = ['Emote']
+
+
+class Team(SlackNode):
+    default_labels = ['Team']
+
+
+class AccessToken(SlackNode):
+    default_labels = ['AccessToken']
 
 
 def dump_all(graph):

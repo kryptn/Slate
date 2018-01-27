@@ -14,6 +14,11 @@ class Prometheus:
                                          ['app_name', 'endpoint'])
         self.request_in_progress = Gauge('requests_in_progress_total', 'Requests in progress',
                                          ['app_name', 'endpoint', 'method'])
+        self.graph_stats = Counter('graph_stats', 'Graph Stats',
+                                   ['constraints_added', 'constraints_removed', 'contains_updates', 'indexes_added',
+                                    'indexes_removed', 'labels_added', 'labels_removed', 'nodes_created',
+                                    'nodes_deleted', 'properties_set', 'relationships_created',
+                                    'relationships_deleted', 'query_count'])
 
     @contextmanager
     def in_flight(self, name, path, method):
@@ -26,6 +31,7 @@ class Prometheus:
         start = time.time()
         yield
         self.request_latency.labels(name, path).observe(time.time() - start)
+
 
 
 async def metrics(request: web.Request):
