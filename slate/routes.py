@@ -9,8 +9,8 @@ def setup_routes(app: web.Application):
     app.router.add_get('/health/', health, name='health')
 
     if Settings.dev:
-        from slate.views import channel, replay, history
+        from slate.views import channel, history, toggle_repeat
 
+        app.router.add_get('/toggle-repeat/{host}', toggle_repeat, name='toggle-repeat')
         app.router.add_get('/history/', history, name='history')
         app.router.add_get('/channel/{channel_id:[A-Z0-9]+}/', channel, name='channel')
-        app.router.add_get('/replay/{event_id:[A-Z0-9]+}/', replay, name='replay')

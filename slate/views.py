@@ -1,7 +1,7 @@
 import json
 import platform
 
-from aiohttp import web
+from aiohttp import web, ClientSession
 from aiohttp.web import json_response
 
 from slate import Settings
@@ -39,10 +39,20 @@ async def channel(request: web.Request) -> web.Response:
 
     return json_response(sorted(data, key=lambda x: x['message']['event_ts']))
 
+async def toggle_repeat(request: web.Request) -> web.Response:
+    target = request.match_info.get('host', None)
+    q = f"""
+    merge (n:Slack:RepeatTarget {{destination: "{target}" }})
+      on create set n.enabled=true
+      on match set n.enabled = not n.enabled
+    return n as target
+    """
+    result = request.app.graph.run(q)
+    return json_response(result.data())
 
-async def replay(request: web.Request) -> web.Response:
-    channel = request.match_info['channel_id']
-
+async def repeat(payload, destination):
+    with ClientSession() as client:
+        return await client.post(destination, data=payload)
 
 async def ingest(request: web.Request) -> web.Response:
     payload = await request.json()
@@ -51,6 +61,13 @@ async def ingest(request: web.Request) -> web.Response:
 
     if payload['type'] == 'url_verification':
         return json_response({'challenge': payload['challenge']})
+
+    if Settings.slack_event_repeater:
+        q = 'match (n:Slack:RepeatTarget {enabled: true}) return n.destination as destination'
+        targets = request.app.graph.run(q)
+        for target in targets.data():
+            await repeat(payload, target['destination'])
+            return web.Response(status=200)
 
     request.app.loop.create_task(request.app.slack.handle(payload))
     return web.Response(status=200)

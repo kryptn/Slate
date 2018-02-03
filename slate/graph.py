@@ -63,7 +63,9 @@ class AccessToken(SlackNode):
     default_labels = ['AccessToken']
 
 
-def dump_all(graph):
+def dump_all(graph=None):
+    if not graph:
+        graph = make_graph_with_creds()
     graph.run('match (n:Slack) detach delete n')
 
 

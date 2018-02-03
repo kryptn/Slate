@@ -9,6 +9,8 @@ class Settings:
     slack_verification_token = ''
     slack_oauth_token = ''
 
+    slack_event_repeater = False
+
     # external hostname for url building
     hostname = 'https://localhost'
 
