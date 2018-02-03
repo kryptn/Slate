@@ -1,10 +1,11 @@
 from aiohttp import web
 
-from slate.graph import init_graph
-from slate.routes import setup_routes
 from slate.actions import init_slack
-from slate.oauth import init_slack_oauth_flow
+from slate.graph import init_graph
 from slate.metrics import setup_prometheus, prometheus_middleware
+from slate.oauth import init_slack_oauth_flow
+from slate.routes import setup_routes
+
 
 def make_app() -> web.Application:
     app = web.Application(middlewares=[prometheus_middleware])

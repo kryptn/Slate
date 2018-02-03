@@ -33,7 +33,6 @@ class Prometheus:
         self.request_latency.labels(name, path).observe(time.time() - start)
 
 
-
 async def metrics(request: web.Request):
     latest = prometheus_client.generate_latest()
     return web.Response(body=latest.decode('utf-8'))

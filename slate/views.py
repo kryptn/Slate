@@ -39,6 +39,7 @@ async def channel(request: web.Request) -> web.Response:
 
     return json_response(sorted(data, key=lambda x: x['message']['event_ts']))
 
+
 async def toggle_repeat(request: web.Request) -> web.Response:
     target = request.match_info.get('host', None)
     q = f"""
@@ -50,9 +51,11 @@ async def toggle_repeat(request: web.Request) -> web.Response:
     result = request.app.graph.run(q)
     return json_response(result.data())
 
+
 async def repeat(payload, destination):
     with ClientSession() as client:
-        return await client.post(destination, data=payload)
+        return await client.post(destination, json=payload)
+
 
 async def ingest(request: web.Request) -> web.Response:
     payload = await request.json()

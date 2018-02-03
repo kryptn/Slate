@@ -4,7 +4,7 @@ from pprint import pprint
 
 from py2neo import Relationship
 
-from slate.graph import IngestEvent, User, Message, Reaction, Emoji, Emote, Team, AccessToken, SlackNode
+from slate.graph import IngestEvent, User, Message, Reaction, Emoji, Emote, Team, AccessToken
 from slate.utils import DottedNullableDict
 
 
@@ -94,7 +94,7 @@ class Slack:
             channel=obj.event.channel,
             event_ts=float(obj.event.event_ts),
             user=obj.event.user,
-            )
+        )
 
         # relationships
         author_authored_msg = Relationship(author.n, 'AUTHORED', msg.n, event_ts=obj.event.event_ts)
@@ -145,7 +145,6 @@ class Slack:
         """
 
         result = self.graph.run(cypher)
-
 
 
 async def init_slack(app):
