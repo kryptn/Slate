@@ -9,6 +9,8 @@ class Settings:
     slack_verification_token = ''
     slack_oauth_token = ''
 
+    slack_event_repeater = False
+
     # external hostname for url building
     hostname = 'https://localhost'
 
@@ -17,6 +19,8 @@ class Settings:
     # app settings
     host = '0.0.0.0'
     port = 8080
+
+    amqp_uri = 'amqp://guest:guest@localhost'
 
     # neo4j settings
     neo4j = {
